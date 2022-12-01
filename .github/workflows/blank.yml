@@ -93,10 +93,10 @@ jobs:
               if [ "${COLR:0:1}" == "f" -o "${COLR:1:1}" == "f" -o "${COLR:2:1}" == "f" ]; then
                 echo "COLORS=$(echo \#ff3333)" >> $GITHUB_ENV
               else
-                echo "COLORS=$(echo \#ffffaa)" >> $GITHUB_ENV
+                echo "COLORS=$(echo \#ffffc8)" >> $GITHUB_ENV
               fi
             fi
-            echo "ffffaa"
+            echo "ffffc8"
 
       - name: slack send
         uses: rtCamp/action-slack-notify@master

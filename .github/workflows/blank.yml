@@ -86,6 +86,7 @@ jobs:
               echo "VALIDATE : FAIL"
               COLR=${COLR}f
             fi
+            echo ""
             
             if [ "$COLR" == "ppp" ]; then            
               echo "COLORS=$(echo good)" >> $GITHUB_ENV

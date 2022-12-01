@@ -92,9 +92,9 @@ jobs:
               echo "COLORS=$(echo good)" >> $GITHUB_ENV
             else
               if [ "${COLR:0:1}" == "f" -o "${COLR:1:1}" == "f" -o "${COLR:2:1}" == "f" ]; then
-                echo "COLORS=$(echo \#ff3333)" >> $GITHUB_ENV
+                echo "COLORS=\#ff3333" >> $GITHUB_ENV
               else
-                echo "COLORS=$(echo \#e6e600)" >> $GITHUB_ENV
+                echo "COLORS=\#e6e600" >> $GITHUB_ENV
               fi
             fi
 

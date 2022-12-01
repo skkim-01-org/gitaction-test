@@ -40,13 +40,13 @@ jobs:
             echo "EXPIRE: "$NA
             if [ "$RESULT" -gt "30" ]; then
               echo "VALIDATE : PASS"
-              COLR=p
+              COLR="p"
             elif [ "$RESULT" -le "30" -a "$RESULT" -ge "1" ]; then
               echo "VALIDATE : WARNING"
-              COLR=w
+              COLR="w"
             else
               echo "VALIDATE : FAIL"
-              COLR=f
+              COLR="f"
             fi
             echo ""
             
@@ -59,13 +59,13 @@ jobs:
             echo "EXPIRE: "$NA
             if [ "$RESULT" -gt "30" ]; then
               echo "VALIDATE : PASS"
-              COLR=${COLR}p
+              COLR=${COLR}"p"
             elif [ "$RESULT" -le "30" -a "$RESULT" -ge "1" ]; then
               echo "VALIDATE : WARNING"
-              COLR=${COLR}w
+              COLR=${COLR}"w"
             else
               echo "VALIDATE : FAIL"
-              COLR=${COLR}f
+              COLR=${COLR}"f"
             fi
             echo ""
             
@@ -78,13 +78,23 @@ jobs:
             echo "EXPIRE: "$NA
             if [ "$RESULT" -gt "30" ]; then
               echo "VALIDATE : PASS"
-              COLR=${COLR}p
+              COLR=${COLR}"p"
             elif [ "$RESULT" -le "30" -a "$RESULT" -ge "1" ]; then
               echo "VALIDATE : WARNING"
-              COLR=${COLR}w
+              COLR=${COLR}"w"
             else
               echo "VALIDATE : FAIL"
-              COLR=${COLR}f
+              COLR=${COLR}"f"
+            fi
+            
+            if [ "$COLR" == "ppp" ]; then
+              echo "COLORS=$(echo good)" >> $GITHUB_ENV
+            else
+              if [ "${COLR:0:1}" == "f" -o "${COLR:1:1}" == "f" -o "${COLR:2:1}" == "f" ]; then
+                echo "COLORS=$(echo \#ff3333)" >> $GITHUB_ENV
+              else
+                echo "COLORS=$(echo \#e6e600)" >> $GITHUB_ENV
+              fi
             fi
 
       - name: slack send

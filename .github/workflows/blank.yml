@@ -53,7 +53,7 @@ jobs:
             DM=`sed -n '1p' result2.txt`
             NA=`sed -n '2p' result2.txt`
             DT2=$(date "+%s")
-            DT1=$(date -d '1 day ago' +"%s")
+            DT1=$(date -d '1 day' +"%s")
             RESULT=`expr \( $DT1 - $DT2 \) / 86400 `
             echo "DOMAIN: "$DM
             echo "EXPIRE: "$NA
@@ -72,7 +72,7 @@ jobs:
             DM=`sed -n '1p' result3.txt`
             NA=`sed -n '2p' result3.txt`
             DT2=$(date "+%s")
-            DT1=$(date -d '1 day ago' +"%s")
+            DT1=$(date -d '1 day' +"%s")
             RESULT=`expr \( $DT1 - $DT2 \) / 86400 `
             echo "DOMAIN: "$DM
             echo "EXPIRE: "$NA
@@ -93,7 +93,7 @@ jobs:
               if [ "${COLR:0:1}" == "f" -o "${COLR:1:1}" == "f" -o "${COLR:2:1}" == "f" ]; then
                 echo "COLORS=$(echo \#ff3333)" >> $GITHUB_ENV
               else
-                echo "COLORS=$(echo \#e6e600)" >> $GITHUB_ENV
+                echo "COLORS=$(echo \#ffff00)" >> $GITHUB_ENV
               fi
             fi
 

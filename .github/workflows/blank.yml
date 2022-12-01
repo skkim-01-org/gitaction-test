@@ -96,7 +96,7 @@ jobs:
                 echo "COLORS=$(echo \#ffff32)" >> $GITHUB_ENV
               fi
             fi
-            echo "ffff32"
+            echo "ffff64"
 
       - name: slack send
         uses: rtCamp/action-slack-notify@master

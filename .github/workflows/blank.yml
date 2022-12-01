@@ -11,44 +11,87 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - name: console
+      - name: Store Certification
+        run: openssl s_client -showcerts -connect gk-api.samsung.com:443 > chain.pem
+
+      - name: Cert Store
         run: |
-          echo "COLORS=$(echo \#ff3333)" >> $GITHUB_ENV
-          echo Failure
-        
+          gawk 'BEGIN { pipe="openssl x509 -noout -subject -dates "} /^-+BEGIN CERT/,/^-+END CERT/ { print | pipe } ' chain.pem | grep subject | awk -F = '{print $7}' > result.txt          
+          gawk 'BEGIN { pipe="openssl x509 -noout -subject -dates "} /^-+BEGIN CERT/,/^-+END CERT/ { print | pipe } ' chain.pem | grep notAfter | awk -F = '{print $2}' >> result.txt
+          
+          gawk 'BEGIN { pipe="openssl x509 -noout -subject -dates "} /^-+BEGIN CERT/,/^-+END CERT/ { print | pipe } /^-+END CERT/ { close(pipe); printf("\n")}  ' chain.pem | grep subject | awk -F = '{print $6}' | sed -n 2p > result2.txt
+          gawk 'BEGIN { pipe="openssl x509 -noout -subject -dates "} /^-+BEGIN CERT/,/^-+END CERT/ { print | pipe } /^-+END CERT/ { close(pipe); printf("\n")}  ' chain.pem | grep notAfter | awk -F = '{print $2}' | sed -n 2p >> result2.txt
+          
+          gawk 'BEGIN { pipe="openssl x509 -noout -subject -dates "} /^-+BEGIN CERT/,/^-+END CERT/ { print | pipe } /^-+END CERT/ { close(pipe); printf("\n")}  ' chain.pem | grep subject | awk -F = '{print $6}' | sed -n 3p > result3.txt
+          gawk 'BEGIN { pipe="openssl x509 -noout -subject -dates "} /^-+BEGIN CERT/,/^-+END CERT/ { print | pipe } /^-+END CERT/ { close(pipe); printf("\n")}  ' chain.pem | grep notAfter | awk -F = '{print $2}' | sed -n 3p >> result3.txt
+
+
+      - name: Certificate Verification
+        uses: mathiasvr/command-output@v1
+        id: console
+        with:
+          run: |
+            DM=`sed -n '1p' result.txt`
+            NA=`sed -n '2p' result.txt`
+            DT2=$(date "+%s")
+            DT1=$(date -d "$NA" +"%s")
+            RESULT=`expr \( $DT1 - $DT2 \) / 86400 `
+            echo "DOMAIN: "$DM
+            echo "EXPIRE: "$NA
+            if [ "$RESULT" -gt "30" ]; then
+              echo "VALIDATE : PASS"
+              echo "COLORS=$(echo good)" >> $GITHUB_ENV
+            elif [ "$RESULT" -le "30" -a "$RESULT" -ge "1" ]; then
+              echo "VALIDATE : WARNING"
+              echo "COLORS=$(echo \#e6e600)" >> $GITHUB_ENV
+            else
+              echo "VALIDATE : FAIL"
+              echo "COLORS=$(echo \#ff3333)" >> $GITHUB_ENV
+            fi
+            echo ""
+            
+            DM=`sed -n '1p' result2.txt`
+            NA=`sed -n '2p' result2.txt`
+            DT2=$(date "+%s")
+            DT1=$(date -d "$NA" +"%s")
+            RESULT=`expr \( $DT1 - $DT2 \) / 86400 `
+            echo "DOMAIN: "$DM
+            echo "EXPIRE: "$NA
+            if [ "$RESULT" -gt "30" ]; then
+              echo "VALIDATE : PASS"
+              echo "COLORS=$(echo good)" >> $GITHUB_ENV
+            elif [ "$RESULT" -le "30" -a "$RESULT" -ge "1" ]; then
+              echo "VALIDATE : WARNING"
+              echo "COLORS=$(echo \#e6e600)" >> $GITHUB_ENV
+            else
+              echo "VALIDATE : FAIL"
+              echo "COLORS=$(echo \#ff3333)" >> $GITHUB_ENV
+            fi
+            echo ""
+            
+            DM=`sed -n '1p' result3.txt`
+            NA=`sed -n '2p' result3.txt`
+            DT2=$(date "+%s")
+            DT1=$(date -d "$NA" +"%s")
+            RESULT=`expr \( $DT1 - $DT2 \) / 86400 `
+            echo "DOMAIN: "$DM
+            echo "EXPIRE: "$NA
+            if [ "$RESULT" -gt "30" ]; then
+              echo "VALIDATE : PASS"
+              echo "COLORS=$(echo good)" >> $GITHUB_ENV
+            elif [ "$RESULT" -le "30" -a "$RESULT" -ge "1" ]; then
+              echo "VALIDATE : WARNING"
+              echo "COLORS=$(echo \#e6e600)" >> $GITHUB_ENV
+            else
+              echo "VALIDATE : FAIL"
+              echo "COLORS=$(echo \#ff3333)" >> $GITHUB_ENV
+            fi
+
       - name: slack send
         uses: rtCamp/action-slack-notify@master
         env:
           SLACK_TITLE: Sender
           MSG_MINIMAL: true
           SLACK_COLOR: ${{ env.COLORS }}
-          SLACK_MESSAGE: ${{ steps.console.outputs.stdout }}
-          SLACK_WEBHOOK: ${{ secrets.CERT_WEBHOOK_URL }}
-
-      - name: console
-        run: |
-          echo "COLORS=$(echo good)" >> $GITHUB_ENV
-          echo Success
-          
-      - name: slack send
-        uses: rtCamp/action-slack-notify@master
-        env:
-          SLACK_TITLE: Sender
-          MSG_MINIMAL: true
-          SLACK_COLOR:  ${{ env.COLORS }}
-          SLACK_MESSAGE: ${{ steps.console.outputs.stdout }}
-          SLACK_WEBHOOK: ${{ secrets.CERT_WEBHOOK_URL }}
-
-      - name: console
-        run: |
-          echo "COLORS=$(echo \#e6e600)" >> $GITHUB_ENV
-          echo Warning
-      
-      - name: slack send
-        uses: rtCamp/action-slack-notify@master
-        env:
-          SLACK_TITLE: Sender
-          MSG_MINIMAL: true
-          SLACK_COLOR:  ${{ env.COLORS }}
           SLACK_MESSAGE: ${{ steps.console.outputs.stdout }}
           SLACK_WEBHOOK: ${{ secrets.CERT_WEBHOOK_URL }}

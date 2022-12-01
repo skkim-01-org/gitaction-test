@@ -13,10 +13,37 @@ jobs:
 
       - name: echo
         run: |
-          echo warning > colors.txt
-          echo "COLORS=$(echo failure)" >> $GITHUB_ENV
-          echo ture
+          echo "COLORS=$(echo #f30c2b)" >> $GITHUB_ENV
+          echo Failure
         
+      - name: slack send
+        uses: rtCamp/action-slack-notify@master
+        env:
+          SLACK_TITLE: Sender
+          MSG_MINIMAL: true
+          SLACK_COLOR: $COLORS
+          SLACK_MESSAGE: ${{ steps.console.outputs.stdout }}
+          SLACK_WEBHOOK: ${{ secrets.CERT_WEBHOOK_URL }}
+
+      - name: echo
+        run: |
+          echo "COLORS=$(echo good)" >> $GITHUB_ENV
+          echo Success
+          
+      - name: slack send
+        uses: rtCamp/action-slack-notify@master
+        env:
+          SLACK_TITLE: Sender
+          MSG_MINIMAL: true
+          SLACK_COLOR: $COLORS
+          SLACK_MESSAGE: ${{ steps.console.outputs.stdout }}
+          SLACK_WEBHOOK: ${{ secrets.CERT_WEBHOOK_URL }}
+
+      - name: echo
+        run: |
+          echo "COLORS=$(echo #f3da01)" >> $GITHUB_ENV
+          echo Warning
+      
       - name: slack send
         uses: rtCamp/action-slack-notify@master
         env:

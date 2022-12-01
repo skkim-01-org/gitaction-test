@@ -31,61 +31,9 @@ jobs:
         id: console
         with:
           run: |
-            DM=`sed -n '1p' result.txt`
-            NA=`sed -n '2p' result.txt`
-            DT2=$(date "+%s")            
-            DT1=$(date "+%s")
-            RESULT=`expr \( $DT1 - $DT2 \) / 86400 `
-            echo "DOMAIN: "$DM
-            echo "EXPIRE: "$NA
-            if [ "$RESULT" -gt "30" ]; then
-              echo "VALIDATE : PASS"
-              COLR=p
-            elif [ "$RESULT" -le "30" -a "$RESULT" -ge "1" ]; then
-              echo "VALIDATE : WARNING"
-              COLR=w
-            else
-              echo "VALIDATE : FAIL"
-              COLR=f
-            fi
+            COLR=pwf
             echo ""
-            
-            DM=`sed -n '1p' result2.txt`
-            NA=`sed -n '2p' result2.txt`
-            DT2=$(date "+%s")
-            DT1=$(date -d "$NA" +"%s")
-            RESULT=`expr \( $DT1 - $DT2 \) / 86400 `
-            echo "DOMAIN: "$DM
-            echo "EXPIRE: "$NA
-            if [ "$RESULT" -gt "30" ]; then
-              echo "VALIDATE : PASS"
-              COLR=${COLR}p
-            elif [ "$RESULT" -le "30" -a "$RESULT" -ge "1" ]; then
-              echo "VALIDATE : WARNING"
-              COLR=${COLR}w
-            else
-              echo "VALIDATE : FAIL"
-              COLR=${COLR}f
-            fi
-            echo ""
-            
-            DM=`sed -n '1p' result3.txt`
-            NA=`sed -n '2p' result3.txt`
-            DT2=$(date "+%s")
-            DT1=$(date -d "$NA" +"%s")
-            RESULT=`expr \( $DT1 - $DT2 \) / 86400 `
-            echo "DOMAIN: "$DM
-            echo "EXPIRE: "$NA
-            if [ "$RESULT" -gt "30" ]; then
-              echo "VALIDATE : PASS"
-              COLR=${COLR}p
-            elif [ "$RESULT" -le "30" -a "$RESULT" -ge "1" ]; then
-              echo "VALIDATE : WARNING"
-              COLR=${COLR}w
-            else
-              echo "VALIDATE : FAIL"
-              COLR=${COLR}f
-            fi
+            echo $COLR
             echo ""
             
             if [ "$COLR" == "ppp" ]; then            

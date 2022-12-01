@@ -7,27 +7,48 @@ on:
 jobs:
   MsgTest:
     runs-on: ubuntu-latest
-    outputs: 
-      colors: ${{ steps.echo.outputs.colors }}
-    
+
     steps:
       - uses: actions/checkout@v3
-      - name: echo
+
+      - name: console
         run: |
-          echo "colors=echo \#ff3333" >> $GITHUB_OUTPUT
+          echo "COLORS=$(echo \#ff3333)" >> $GITHUB_ENV
           echo Failure
         
-  SlackSender:
-    runs-on: ubuntu-latest
-    needs: MsgTest
-    
-    steps:    
       - name: slack send
         uses: rtCamp/action-slack-notify@master
         env:
           SLACK_TITLE: Sender
           MSG_MINIMAL: true
-          SLACK_COLOR: ${{ needs.MsgTest.outputs.colors }}
+          SLACK_COLOR: ${{ env.COLORS }}
           SLACK_MESSAGE: ${{ steps.console.outputs.stdout }}
           SLACK_WEBHOOK: ${{ secrets.CERT_WEBHOOK_URL }}
 
+      - name: console
+        run: |
+          echo "COLORS=$(echo good)" >> $GITHUB_ENV
+          echo Success
+          
+      - name: slack send
+        uses: rtCamp/action-slack-notify@master
+        env:
+          SLACK_TITLE: Sender
+          MSG_MINIMAL: true
+          SLACK_COLOR:  ${{ env.COLORS }}
+          SLACK_MESSAGE: ${{ steps.console.outputs.stdout }}
+          SLACK_WEBHOOK: ${{ secrets.CERT_WEBHOOK_URL }}
+
+      - name: console
+        run: |
+          echo "COLORS=$(echo \#e6e600)" >> $GITHUB_ENV
+          echo Warning
+      
+      - name: slack send
+        uses: rtCamp/action-slack-notify@master
+        env:
+          SLACK_TITLE: Sender
+          MSG_MINIMAL: true
+          SLACK_COLOR:  ${{ env.COLORS }}
+          SLACK_MESSAGE: ${{ steps.console.outputs.stdout }}
+          SLACK_WEBHOOK: ${{ secrets.CERT_WEBHOOK_URL }}

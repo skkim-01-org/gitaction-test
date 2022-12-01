@@ -34,7 +34,7 @@ jobs:
             DM=`sed -n '1p' result.txt`
             NA=`sed -n '2p' result.txt`
             DT2=$(date "+%s")
-            DT1=$(date -d '1 day ago' +"%s")
+            DT1=$(date -d '1 day' +"%s")
             RESULT=`expr \( $DT1 - $DT2 \) / 86400 `
             echo "DOMAIN: "$DM
             echo "EXPIRE: "$NA
@@ -53,7 +53,7 @@ jobs:
             DM=`sed -n '1p' result2.txt`
             NA=`sed -n '2p' result2.txt`
             DT2=$(date "+%s")
-            DT1=$(date -d "$NA" +"%s")
+            DT1=$(date -d '1 day ago' +"%s")
             RESULT=`expr \( $DT1 - $DT2 \) / 86400 `
             echo "DOMAIN: "$DM
             echo "EXPIRE: "$NA
@@ -72,7 +72,7 @@ jobs:
             DM=`sed -n '1p' result3.txt`
             NA=`sed -n '2p' result3.txt`
             DT2=$(date "+%s")
-            DT1=$(date -d "$NA" +"%s")
+            DT1=$(date -d '1 day ago' +"%s")
             RESULT=`expr \( $DT1 - $DT2 \) / 86400 `
             echo "DOMAIN: "$DM
             echo "EXPIRE: "$NA

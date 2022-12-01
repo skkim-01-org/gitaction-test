@@ -106,3 +106,4 @@ jobs:
           SLACK_COLOR: ${{ env.COLORS }}
           SLACK_MESSAGE: ${{ steps.console.outputs.stdout }}
           SLACK_WEBHOOK: ${{ secrets.CERT_WEBHOOK_URL }}
+          SLACK_FOOTER: Powered by Team GateKeeper

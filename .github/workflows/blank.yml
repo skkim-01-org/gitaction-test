@@ -22,6 +22,6 @@ jobs:
         env:
           SLACK_TITLE: Sender
           MSG_MINIMAL: true
-          SLACK_COLOR: ${{COLORS}}
+          SLACK_COLOR: $COLORS
           SLACK_MESSAGE: ${{ steps.console.outputs.stdout }}
           SLACK_WEBHOOK: ${{ secrets.CERT_WEBHOOK_URL }}

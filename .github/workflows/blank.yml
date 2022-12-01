@@ -1,0 +1,27 @@
+name: Slack Webhook Test
+
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  MsgTest:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: echo
+        run: |
+          echo warning > colors.txt
+          echo "COLORS=$(echo failure)" >> $GITHUB_ENV
+          echo ture
+        
+      - name: slack send
+        uses: rtCamp/action-slack-notify@master
+        env:
+          SLACK_TITLE: Sender
+          MSG_MINIMAL: true
+          SLACK_COLOR: ${{COLORS}}
+          SLACK_MESSAGE: ${{ steps.console.outputs.stdout }}
+          SLACK_WEBHOOK: ${{ secrets.CERT_WEBHOOK_URL }}

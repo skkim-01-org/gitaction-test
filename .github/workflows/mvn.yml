@@ -1,0 +1,85 @@
+# This workflow will build a Java project with Maven, and cache/restore any dependencies to improve the workflow execution time
+# For more information see: https://help.github.com/actions/language-and-framework-guides/building-and-testing-java-with-maven
+
+# Update for AWS ARN
+name: ACTION-TEST
+
+on:
+  push:
+    branches: [ "feature" ]
+
+jobs:
+  build-and-upload-s3:
+    runs-on: ubuntu-latest
+    environment: develop
+    env:
+      AWS_REGION: ${{secrets.AWS_REGION}}
+      S3_BUCKET_NAME: ${{secrets.S3_BUCKET_NAME}}
+      S3_BUCKET_LOCATION: ${{secrets.S3_BUCKET_LOCATION}}
+      BUILD_FILE_NAME: ${{secrets.BUILD_FILE_NAME}}
+    permissions:
+      id-token: write   # This is required for requesting the JWT
+      contents: read    # This is required for actions/checkout
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up JDK 8
+        uses: actions/setup-java@v2
+        with:
+          java-version: '8'
+          distribution: 'adopt'
+          cache: maven
+      - name: Build with Maven
+        run: mvn -Dmaven.test.skip=true clean package
+      - name: Remove exists tar file
+        run: rm -rf $BUILD_FILE_NAME
+      - name: Make latest tar file
+        run: tar -zcvf $BUILD_FILE_NAME scripts/*.sh ./appspec.yml target/ROOT.war target/ROOT-config.tar
+      - name: persist to workspace
+        uses: actions/upload-artifact@v2
+        with:
+          name: deploy_tgz
+          path: ${{secrets.BUILD_FILE_NAME}}
+      - name: Set AWS OIDC ROLE
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          role-to-assume: ${{secrets.AWS_STG_OIDC_ROLE}}
+          aws-region: ${{secrets.AWS_REGION}}
+      - name: Set AWS Account
+        run: aws configure set default.region $AWS_REGION
+      - name: upload s3
+        run: aws s3 cp $BUILD_FILE_NAME s3://$S3_BUCKET_NAME/$S3_BUCKET_LOCATION/
+
+  deploy-ec2:
+    runs-on: code-large
+    needs: build-and-upload-s3
+    environment: develop
+    env:
+      AWS_REGION: ${{secrets.AWS_REGION}}
+      S3_BUCKET_NAME: ${{secrets.S3_BUCKET_NAME}}
+      S3_BUCKET_LOCATION: ${{secrets.S3_BUCKET_LOCATION}}
+      BUILD_FILE_NAME: ${{secrets.BUILD_FILE_NAME}}
+      APPLICATION_NAME: ${{secrets.APPLICATION_NAME}}
+      DEPLOYMENT_GROUP_NAME: ${{secrets.DEPLOYMENT_GROUP_NAME}}
+    permissions:
+      id-token: write   # This is required for requesting the JWT
+      contents: read    # This is required for actions/checkout
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set AWS OIDC ROLE
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          role-to-assume: ${{secrets.AWS_STG_OIDC_ROLE}}
+          aws-region: ${{secrets.AWS_REGION}}
+      - name: Set AWS Account
+        run: aws configure set default.region $AWS_REGION
+      - name: deploy ec2
+        run: |
+          aws deploy create-deployment \
+              --application-name $APPLICATION_NAME \
+              --deployment-group-name $DEPLOYMENT_GROUP_NAME \
+              --s3-location bucket=$S3_BUCKET_NAME,key=$S3_BUCKET_LOCATION/$BUILD_FILE_NAME,bundleType=tgz > deploy-id.txt
+      - name: upload deploy id txt
+        uses: actions/upload-artifact@v2
+        with:
+          name: deploy-id-txt
+          path: deploy-id.txt
